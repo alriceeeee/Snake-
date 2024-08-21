@@ -771,69 +771,108 @@
 
 
 
-  // Detect touch events
-  canvas.addEventListener("touchstart", handleTouchStart, false);
-  canvas.addEventListener("touchmove", handleTouchMove, false);
-  canvas.addEventListener("touchend", handleTouchEnd, false);
+// Detect touch events
+canvas.addEventListener("touchstart", handleTouchStart, false);
+canvas.addEventListener("touchmove", handleTouchMove, false);
+canvas.addEventListener("touchend", handleTouchEnd, false);
 
-  var touchStartX, touchStartY;
-  var touchEndX, touchEndY;
+var touchStartX, touchStartY;
+var touchEndX, touchEndY;
 
-  function handleTouchStart(event) {
-    event.preventDefault();
-    touchStartX = event.touches[0].clientX;
-    touchStartY = event.touches[0].clientY;
+function handleTouchStart(event) {
+  event.preventDefault();
+  var rect = canvas.getBoundingClientRect();
+  touchStartX = event.touches[0].clientX - rect.left;
+  touchStartY = event.touches[0].clientY - rect.top;
+}
+
+function handleTouchMove(event) {
+  event.preventDefault();
+  if (!touchStartX || !touchStartY) {
+    return;
   }
 
-  function handleTouchMove(event) {
-    event.preventDefault();
-    if (!touchStartX || !touchStartY) {
-      return;
+  var rect = canvas.getBoundingClientRect();
+  touchEndX = event.touches[0].clientX - rect.left;
+  touchEndY = event.touches[0].clientY - rect.top;
+
+  handleSwipe();
+}
+
+function handleTouchEnd(event) {
+  event.preventDefault();
+  if (!touchStartX || !touchStartY) {
+    return;
+  }
+
+  var rect = canvas.getBoundingClientRect();
+  touchEndX = event.changedTouches[0].clientX - rect.left;
+  touchEndY = event.changedTouches[0].clientY - rect.top;
+
+  handleSwipe();
+
+  touchStartX = null;
+  touchStartY = null;
+}
+
+function handleSwipe() {
+  var deltaX = touchEndX - touchStartX;
+  var deltaY = touchEndY - touchStartY;
+
+  if (Math.abs(deltaX) > Math.abs(deltaY)) {
+    // Horizontal swipe
+    if (deltaX > 0 && snake_dir !== 3) {
+      snake_next_dir = 1; // Right
+    } else if (deltaX < 0 && snake_dir !== 1) {
+      snake_next_dir = 3; // Left
     }
-
-    touchEndX = event.touches[0].clientX;
-    touchEndY = event.touches[0].clientY;
-
-    handleSwipe();
-  }
-
-  function handleTouchEnd(event) {
-    event.preventDefault();
-    if (!touchStartX || !touchStartY) {
-      return;
-    }
-
-    touchEndX = event.changedTouches[0].clientX;
-    touchEndY = event.changedTouches[0].clientY;
-
-    handleSwipe();
-
-    touchStartX = null;
-    touchStartY = null;
-  }
-
-  function handleSwipe() {
-    var deltaX = touchEndX - touchStartX;
-    var deltaY = touchEndY - touchStartY;
-
-    if (Math.abs(deltaX) > Math.abs(deltaY)) {
-      // Horizontal swipe
-      if (deltaX > 0 && snake_dir !== 3) {
-        snake_next_dir = 1; // Right
-      } else if (deltaX < 0 && snake_dir !== 1) {
-        snake_next_dir = 3; // Left
-      }
-    } else {
-      // Vertical swipe
-      if (deltaY > 0 && snake_dir !== 0) {
-        snake_next_dir = 2; // Down
-      } else if (deltaY < 0 && snake_dir !== 2) {
-        snake_next_dir = 0; // Up
-      }
+  } else {
+    // Vertical swipe
+    if (deltaY > 0 && snake_dir !== 0) {
+      snake_next_dir = 2; // Down
+    } else if (deltaY < 0 && snake_dir !== 2) {
+      snake_next_dir = 0; // Up
     }
   }
+}
+
+function handleTouchEnd(event) {
+  event.preventDefault();
+  if (!touchStartX || !touchStartY) {
+    return;
+  }
+
+  var rect = canvas.getBoundingClientRect();
+  touchEndX = event.changedTouches[0].clientX - rect.left;
+  touchEndY = event.changedTouches[0].clientY - rect.top;
+
+  handleSwipe();
+
+  touchStartX = null;
+  touchStartY = null;
+}
+
+function handleSwipe() {
+  var deltaX = touchEndX - touchStartX;
+  var deltaY = touchEndY - touchStartY;
+
+  if (Math.abs(deltaX) > Math.abs(deltaY)) {
+    // Horizontal swipe
+    if (deltaX > 0 && snake_dir !== 3) {
+      snake_next_dir = 1; // Right
+    } else if (deltaX < 0 && snake_dir !== 1) {
+      snake_next_dir = 3; // Left
+    }
+  } else {
+    // Vertical swipe
+    if (deltaY > 0 && snake_dir !== 0) {
+      snake_next_dir = 2; // Down
+    } else if (deltaY < 0 && snake_dir !== 2) {
+      snake_next_dir = 0; // Up
+    }
+  }
+}
 })();
-
     </script>
   </head>
   </html>
