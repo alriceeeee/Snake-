@@ -65,9 +65,9 @@
         margin-left: auto;
         margin-right: auto;
       }
-
       text {
-        height: 20 position: center
+        height: 20px;
+        position: center;
       }
 
       #help h1 {
@@ -197,7 +197,6 @@
 
       li {
         display: inline-block;
-        float: left;
         white-space: 5px;
       }
 
@@ -298,7 +297,7 @@
       }
     </style>
     <style>
-      {
+      b {
         font-size: 75px;
         animation: color-change 10s infinite;
       }
@@ -769,41 +768,51 @@
     };
   };
 
-  // Add this code for automatic canvas resizing and touch event handling
 
-  var canvasResizer = function () {
-    var windowWidth = window.innerWidth;
-    var windowHeight = window.innerHeight;
 
-    var newCanvasWidth = Math.floor(windowWidth / 10) * 10;
-    var newCanvasHeight = Math.floor(windowHeight / 10) * 10;
-
-    canvas.width = newCanvasWidth;
-    canvas.height = newCanvasHeight;
-  };
-
-  var resizeTimer;
-  window.addEventListener("resize", function () {
-    clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(canvasResizer, 250);
-  });
 
   // Detect touch events
   canvas.addEventListener("touchstart", handleTouchStart, false);
+  canvas.addEventListener("touchmove", handleTouchMove, false);
   canvas.addEventListener("touchend", handleTouchEnd, false);
 
   var touchStartX, touchStartY;
   var touchEndX, touchEndY;
 
   function handleTouchStart(event) {
-    touchStartX = event.touches[0].pageX;
-    touchStartY = event.touches[0].pageY;
+    event.preventDefault();
+    touchStartX = event.touches[0].clientX;
+    touchStartY = event.touches[0].clientY;
+  }
+
+  function handleTouchMove(event) {
+    event.preventDefault();
+    if (!touchStartX || !touchStartY) {
+      return;
+    }
+
+    touchEndX = event.touches[0].clientX;
+    touchEndY = event.touches[0].clientY;
+
+    handleSwipe();
   }
 
   function handleTouchEnd(event) {
-    touchEndX = event.changedTouches[0].pageX;
-    touchEndY = event.changedTouches[0].pageY;
+    event.preventDefault();
+    if (!touchStartX || !touchStartY) {
+      return;
+    }
 
+    touchEndX = event.changedTouches[0].clientX;
+    touchEndY = event.changedTouches[0].clientY;
+
+    handleSwipe();
+
+    touchStartX = null;
+    touchStartY = null;
+  }
+
+  function handleSwipe() {
     var deltaX = touchEndX - touchStartX;
     var deltaY = touchEndY - touchStartY;
 
@@ -822,7 +831,7 @@
         snake_next_dir = 0; // Up
       }
     }
-  };
+  }
 })();
 
     </script>
