@@ -407,16 +407,16 @@ b {
     <header class="wrap">
       <p class="score">Apples Eaten: <span id="score_value">0</span></p>
     </header>
-    <canvas class="wrap" id="snake" width="420" height="420" tabindex="1"></canvas>
-
-    <!-- Add on-screen controls -->
-    <div id="controls">
-      <button id="up">↑</button>
-      <div>
-        <button id="left">←</button>
-        <button id="right">→</button>
+    <div id="game-container">
+      <canvas id="snake" class="wrap" width="420" height="420" tabindex="1"></canvas>
+      <div id="controls">
+        <button id="up"></button>
+        <div id="left-right">
+          <button id="left"></button>
+          <button id="right"></button>
+        </div>
+        <button id="down"></button>
       </div>
-      <button id="down">↓</button>
     </div>
 
     <!-- Game Over Screen -->
@@ -477,7 +477,7 @@ b {
       <button class="buttoncolor" align="bottom" onclick="onClick()">Controls (click me!)</button>
     </div>
 <script>
-  (function () {
+(function () {
   /////////////////////////////////////////////////////////////
 
   // Canvas & Context
@@ -1081,6 +1081,92 @@ b {
         }
       }
     }
+
+    function detectBrowserAndOptimize() {
+      var ua = navigator.userAgent;
+      var browserName;
+      var osName;
+      var deviceType;
+
+      // Detect browser
+      if (ua.indexOf("Firefox") > -1) {
+        browserName = "Firefox";
+      } else if (ua.indexOf("Opera") > -1 || ua.indexOf("OPR") > -1) {
+        browserName = "Opera";
+      } else if (ua.indexOf("Trident") > -1) {
+        browserName = "Internet Explorer";
+      } else if (ua.indexOf("Edge") > -1) {
+        browserName = "Microsoft Edge";
+      } else if (ua.indexOf("Chrome") > -1) {
+        browserName = "Chrome";
+      } else if (ua.indexOf("Safari") > -1) {
+        browserName = "Safari";
+      } else {
+        browserName = "Unknown";
+      }
+
+      // Detect OS
+      if (navigator.appVersion.indexOf("Win") != -1) osName = "Windows";
+      if (navigator.appVersion.indexOf("Mac") != -1) osName = "MacOS";
+      if (navigator.appVersion.indexOf("X11") != -1) osName = "UNIX";
+      if (navigator.appVersion.indexOf("Linux") != -1) osName = "Linux";
+
+      // Detect device type
+      if (/Mobi|Android/i.test(ua)) {
+        deviceType = "Mobile";
+      } else {
+        deviceType = "Desktop";
+      }
+
+      // Get screen size
+      var screenWidth = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+      var screenHeight = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
+
+      // Adjust layout based on device and screen size
+      var gameContainer = document.getElementById('game-container');
+      var controls = document.getElementById('controls');
+      var menu = document.getElementById('menu');
+      var setting = document.getElementById('setting');
+      var gameover = document.getElementById('gameover');
+
+      if (deviceType === "Mobile") {
+        // For mobile devices
+        gameContainer.style.width = '100%';
+        gameContainer.style.maxWidth = '420px';
+        gameContainer.style.margin = '0 auto';
+        
+        controls.style.display = "block"; // Show on-screen controls
+        controls.style.position = 'static';
+        controls.style.marginTop = '10px';
+        
+        // Adjust font sizes for mobile
+        document.body.style.fontSize = '14px';
+        menu.style.fontSize = '18px';
+        setting.style.fontSize = '16px';
+        gameover.style.fontSize = '18px';
+      } else {
+        // For desktop
+        gameContainer.style.width = '420px';
+        gameContainer.style.margin = '0 auto';
+        
+        controls.style.display = "none"; // Hide on-screen controls
+        
+        // Reset font sizes for desktop
+        document.body.style.fontSize = '16px';
+        menu.style.fontSize = '24px';
+        setting.style.fontSize = '20px';
+        gameover.style.fontSize = '24px';
+      }
+
+      console.log("Browser: " + browserName);
+      console.log("OS: " + osName);
+      console.log("Device Type: " + deviceType);
+      console.log("Screen Size: " + screenWidth + "x" + screenHeight);
+    }
+
+    // Call the function when the window loads and resizes
+    detectBrowserAndOptimize();
+    window.onresize = detectBrowserAndOptimize;
   };
 
   // Function to check gamepad input
