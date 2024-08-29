@@ -5,4 +5,8 @@
 ###
 This has been a project since what? 2017? 2018? I am very proud of how far snake gotten. <br/>
 I really only got into coding because of something called "searchy web." It was used to bypass school restrictions on websites.<br/>
-*if you don't know how to run an html file, please. stop. go to -*
+*if you don't know how to run an html file, please. stop. go look it up for whatever device ur on idfk*
+
+
+
+# Also do NOT distribute this code for commercial use.
