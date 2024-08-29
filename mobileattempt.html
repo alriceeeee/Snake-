@@ -3,22 +3,6 @@
   .lolcursor {
     cursor: url('assets/wii.cur'), auto;
   }
-  .top-right-button {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background-color: black;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    cursor: pointer;
-    font-size: 16px;
-    transition: all 0.3s ease;
-  }
-  .top-right-button:hover {
-    background-color: white;
-    color: black;
-  }
 </style>
 <div class="lolcursor">
   <html>
@@ -379,12 +363,62 @@ b {
   0% { transform: rotateY(0deg); }
   100% { transform: rotateY(360deg); }
 }
+
+#controls {
+  position: fixed;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 150px;
+  z-index: 1000;
+  display: none; /* Hide controls by default */
+}
+
+#controls button {
+  width: 60px;
+  height: 60px;
+  margin: 3px;
+  border: none;
+  background-color: transparent;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+#up { background-image: url('mobilebuttons/up.png'); }
+#down { background-image: url('mobilebuttons/down.png'); }
+#left { background-image: url('mobilebuttons/left.png'); }
+#right { background-image: url('mobilebuttons/right.png'); }
+
+#up, #down {
+  display: block;
+  margin: 3px auto;
+}
+
+#left, #right {
+  display: inline-block;
+}
+
+#left {
+  margin-right: 20px;
+}
     </style>
     <br />
     <header class="wrap">
       <p class="score">Apples Eaten: <span id="score_value">0</span></p>
     </header>
     <canvas class="wrap" id="snake" width="420" height="420" tabindex="1"></canvas>
+
+    <!-- Add on-screen controls -->
+    <div id="controls">
+      <button id="up">↑</button>
+      <div>
+        <button id="left">←</button>
+        <button id="right">→</button>
+      </div>
+      <button id="down">↓</button>
+    </div>
+
     <!-- Game Over Screen -->
     <div id="gameover">
       <h2>Game Over</h2>
@@ -442,7 +476,6 @@ b {
       </script>
       <button class="buttoncolor" align="bottom" onclick="onClick()">Controls (click me!)</button>
     </div>
-    <button class="top-right-button" onclick="window.location.href='mobileattempt.html'">Go to Mobile Version</button>
 <script>
   (function () {
   /////////////////////////////////////////////////////////////
@@ -731,12 +764,14 @@ b {
         screen_menu.style.display = "none";
         screen_setting.style.display = "none";
         screen_gameover.style.display = "none";
+        document.getElementById("controls").style.display = "block"; // Show controls
         break;
       case 1:
         screen_snake.style.display = "none";
         screen_menu.style.display = "block";
         screen_setting.style.display = "none";
         screen_gameover.style.display = "none";
+        document.getElementById("controls").style.display = "none"; // Hide controls
         break;
       case 2:
         screen_snake.style.display = "none";
@@ -859,6 +894,193 @@ b {
         e.gamepad.index, e.gamepad.id);
       gamepad = null;
     });
+
+    // Add event listeners for on-screen controls
+    document.getElementById("up").addEventListener("click", function() { changeDir(87); });
+    document.getElementById("down").addEventListener("click", function() { changeDir(83); });
+    document.getElementById("left").addEventListener("click", function() { changeDir(65); });
+    document.getElementById("right").addEventListener("click", function() { changeDir(68); });
+
+    // Load snake head image
+    var snakeHeadImg = new Image();
+    snakeHeadImg.src = 'snakehead/snakehead.png'; // Adjust the path if needed
+
+    var drawSnake = function () {
+      for (var i = 1; i < snake.length; i++) {
+        activeDot(snake[i].x, snake[i].y);
+      }
+      
+      // Draw snake head
+      var headX = snake[0].x * 10;
+      var headY = snake[0].y * 10;
+      ctx.save();
+      ctx.translate(headX + 5, headY + 5);
+      ctx.rotate((Math.PI / 2) * snake_dir);
+      ctx.drawImage(snakeHeadImg, -5, -5, 10, 10);
+      ctx.restore();
+    };
+
+    var mainLoop = function () {
+      var _x = snake[0].x;
+      var _y = snake[0].y;
+      snake_dir = snake_next_dir;
+
+      // 0 - Up, 1 - Right, 2 - Down, 3 - Left
+      switch (snake_dir) {
+        case 0:
+          _y--;
+          break;
+        case 1:
+          _x++;
+          break;
+        case 2:
+          _y++;
+          break;
+        case 3:
+          _x--;
+          break;
+      }
+
+      snake.pop();
+      snake.unshift({
+        x: _x,
+        y: _y
+      });
+
+      // --------------------
+
+      // Wall
+
+      if (wall == 1) {
+        // On
+        if (snake[0].x < 0 || snake[0].x == canvas.width / 10 || snake[0].y < 0 || snake[0].y == canvas.height / 10) {
+          showScreen(3);
+          return;
+        }
+      } else {
+        // Off
+        for (var i = 0, x = snake.length; i < x; i++) {
+          if (snake[i].x < 0) {
+            snake[i].x = snake[i].x + (canvas.width / 10);
+          }
+          if (snake[i].x == canvas.width / 10) {
+            snake[i].x = snake[i].x - (canvas.width / 10);
+          }
+          if (snake[i].y < 0) {
+            snake[i].y = snake[i].y + (canvas.height / 10);
+          }
+          if (snake[i].y == canvas.height / 10) {
+            snake[i].y = snake[i].y - (canvas.height / 10);
+          }
+        }
+      }
+
+      // --------------------
+
+      // Autophagy death
+      for (var i = 1; i < snake.length; i++) {
+        if (snake[0].x == snake[i].x && snake[0].y == snake[i].y) {
+        }
+      }
+
+      // --------------------
+
+      // Eat Food
+      if (checkBlock(snake[0].x, snake[0].y, food.x, food.y)) {
+        snake[snake.length] = {
+          x: snake[0].x,
+          y: snake[0].y
+        };
+        score += 1;
+        altScore(score);
+        addFood();
+        activeDot(food.x, food.y);
+      }
+
+      // --------------------
+
+      ctx.beginPath();
+      ctx.fillStyle = "#000000";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // --------------------
+
+      drawSnake();
+      activeDot(food.x, food.y);
+
+      // Debug
+      // document.getElementById("debug").innerHTML = snake_dir + " " + snake_next_dir + " " + snake[0].x + " " + snake[0].y;
+
+      // Check for gamepad input
+      checkGamepadInput();
+
+      setTimeout(mainLoop, snake_speed);
+    };
+
+    // Detect touch events
+    canvas.addEventListener("touchstart", handleTouchStart, false);
+    canvas.addEventListener("touchmove", handleTouchMove, false);
+    canvas.addEventListener("touchend", handleTouchEnd, false);
+
+    var touchStartX, touchStartY;
+    var touchEndX, touchEndY;
+
+    function handleTouchStart(event) {
+      event.preventDefault();
+      var rect = canvas.getBoundingClientRect();
+      touchStartX = event.touches[0].clientX - rect.left;
+      touchStartY = event.touches[0].clientY - rect.top;
+    }
+
+    function handleTouchMove(event) {
+      event.preventDefault();
+      if (!touchStartX || !touchStartY) {
+        return;
+      }
+
+      var rect = canvas.getBoundingClientRect();
+      touchEndX = event.touches[0].clientX - rect.left;
+      touchEndY = event.touches[0].clientY - rect.top;
+
+      handleSwipe();
+    }
+
+    function handleTouchEnd(event) {
+      event.preventDefault();
+      if (!touchStartX || !touchStartY) {
+        return;
+      }
+
+      var rect = canvas.getBoundingClientRect();
+      touchEndX = event.changedTouches[0].clientX - rect.left;
+      touchEndY = event.changedTouches[0].clientY - rect.top;
+
+      handleSwipe();
+
+      touchStartX = null;
+      touchStartY = null;
+    }
+
+    function handleSwipe() {
+      var deltaX = touchEndX - touchStartX;
+      var deltaY = touchEndY - touchStartY;
+
+      if (Math.abs(deltaX) > Math.abs(deltaY)) {
+        // Horizontal swipe
+        if (deltaX > 0 && snake_dir !== 3) {
+          snake_next_dir = 1; // Right
+        } else if (deltaX < 0 && snake_dir !== 1) {
+          snake_next_dir = 3; // Left
+        }
+      } else {
+        // Vertical swipe
+        if (deltaY > 0 && snake_dir !== 0) {
+          snake_next_dir = 2; // Down
+        } else if (deltaY < 0 && snake_dir !== 2) {
+          snake_next_dir = 0; // Up
+        }
+      }
+    }
   };
 
   // Function to check gamepad input
@@ -900,107 +1122,5 @@ b {
       }
     }
   }
-
-// Detect touch events
-canvas.addEventListener("touchstart", handleTouchStart, false);
-canvas.addEventListener("touchmove", handleTouchMove, false);
-canvas.addEventListener("touchend", handleTouchEnd, false);
-
-var touchStartX, touchStartY;
-var touchEndX, touchEndY;
-
-function handleTouchStart(event) {
-  event.preventDefault();
-  var rect = canvas.getBoundingClientRect();
-  touchStartX = event.touches[0].clientX - rect.left;
-  touchStartY = event.touches[0].clientY - rect.top;
-}
-
-function handleTouchMove(event) {
-  event.preventDefault();
-  if (!touchStartX || !touchStartY) {
-    return;
-  }
-
-  var rect = canvas.getBoundingClientRect();
-  touchEndX = event.touches[0].clientX - rect.left;
-  touchEndY = event.touches[0].clientY - rect.top;
-
-  handleSwipe();
-}
-
-function handleTouchEnd(event) {
-  event.preventDefault();
-  if (!touchStartX || !touchStartY) {
-    return;
-  }
-
-  var rect = canvas.getBoundingClientRect();
-  touchEndX = event.changedTouches[0].clientX - rect.left;
-  touchEndY = event.changedTouches[0].clientY - rect.top;
-
-  handleSwipe();
-
-  touchStartX = null;
-  touchStartY = null;
-}
-
-function handleSwipe() {
-  var deltaX = touchEndX - touchStartX;
-  var deltaY = touchEndY - touchStartY;
-
-  if (Math.abs(deltaX) > Math.abs(deltaY)) {
-    // Horizontal swipe
-    if (deltaX > 0 && snake_dir !== 3) {
-      snake_next_dir = 1; // Right
-    } else if (deltaX < 0 && snake_dir !== 1) {
-      snake_next_dir = 3; // Left
-    }
-  } else {
-    // Vertical swipe
-    if (deltaY > 0 && snake_dir !== 0) {
-      snake_next_dir = 2; // Down
-    } else if (deltaY < 0 && snake_dir !== 2) {
-      snake_next_dir = 0; // Up
-    }
-  }
-}
-
-function handleTouchEnd(event) {
-  event.preventDefault();
-  if (!touchStartX || !touchStartY) {
-    return;
-  }
-
-  var rect = canvas.getBoundingClientRect();
-  touchEndX = event.changedTouches[0].clientX - rect.left;
-  touchEndY = event.changedTouches[0].clientY - rect.top;
-
-  handleSwipe();
-
-  touchStartX = null;
-  touchStartY = null;
-}
-
-function handleSwipe() {
-  var deltaX = touchEndX - touchStartX;
-  var deltaY = touchEndY - touchStartY;
-
-  if (Math.abs(deltaX) > Math.abs(deltaY)) {
-    // Horizontal swipe
-    if (deltaX > 0 && snake_dir !== 3) {
-      snake_next_dir = 1; // Right
-    } else if (deltaX < 0 && snake_dir !== 1) {
-      snake_next_dir = 3; // Left
-    }
-  } else {
-    // Vertical swipe
-    if (deltaY > 0 && snake_dir !== 0) {
-      snake_next_dir = 2; // Down
-    } else if (deltaY < 0 && snake_dir !== 2) {
-      snake_next_dir = 0; // Up
-    }
-  }
-}
 })();
 </script>
